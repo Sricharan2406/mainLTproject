@@ -1,0 +1,124 @@
+ 
+Alert system for Earthquakes 
+Sricharan Srikrishna 
+22BEC0948
+sricharan.s2022a@vitstudent.ac.in
+
+ 
+1)AIM: 
+ 
+The aim of this project is to design and implement an Arduino-based earthquake detector using an ADXL335 accelerometer, LCD display, buzzer, and LED. The system detects unusual ground vibra ons and provides real- me alerts through visual and audio signals, enhancing early warning and safety measures during seismic ac vity. 
+ 
+ 
+2)COMPONENTS USED : 
+ 	Hardware (Simulated):  
+•	Arduino Uno  
+•	ADXL335 Sensor 
+•	16x2 LCD Display 
+•	Poten ometer (10k) 
+•	LED  
+•	Resistors (220 ohm × 3)  
+•	Jumper Wires 
+•buzzer 
+•bread board 
+ So ware: • Tinkercad Circuits (for simula on) 
+ 
+ 
+3) Circuit Descrip on: 
+The ADXL335 accelerometer con nuously monitors vibra ons along the X, Y, and Z axes. 
+It sends analog voltage signals to the Arduino Uno corresponding to accelera on in each direc on. The Arduino processes these values and compares them to calibrated baseline readings. 
+When significant changes (indica ve of tremors) are detected: 
+•	The buzzer is turned ON 
+•	The LED is turned ON 
+•	The LCD displays "Earthquake ALERT" 
+When no unusual movement is detected: 
+•	The buzzer remains OFF 
+•	The LED remains OFF 
+•	The LCD shows real- me X, Y, Z axis values 
+This setup forms a simple early-warning system for earthquakes, enhancing safety and awareness in sensi ve areas. 
+4. Arduino Code: 
+#include <LiquidCrystal.h> 
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2); 
+ 
+#define X_PIN A0 #define Y_PIN A1 
+#define Z_PIN A2 
+#define BUZZER 12 
+#define LED 13 
+ 
+int xSample = 0, ySample = 0, zSample = 0; int alertFlag = 0; long startTime = 0; 
+ 
+#define SAMPLES 50 
+#define MAX_CHANGE 20 
+#define MIN_CHANGE -20 
+#define BUZZ_DURATION 5000 
+ 
+char displayLine[17]; 
+ 
+void setup() {   Serial.begin(9600);   lcd.begin(16, 2);   pinMode(BUZZER, OUTPUT);   pinMode(LED, OUTPUT);   lcd.print("EarthQuake");   lcd.setCursor(0, 1);   lcd.print("Detector");   delay(2000);   lcd.clear();   lcd.print("Calibra ng...");   lcd.setCursor(0, 1);   lcd.print("Please wait..."); 
+ 
+  for (int i = 0; i < SAMPLES; i++) {     xSample += analogRead(X_PIN);     ySample += analogRead(Y_PIN);     zSample += analogRead(Z_PIN); 
+  } 
+  xSample /= SAMPLES;   ySample /= SAMPLES;   zSample /= SAMPLES; 
+ 
+  delay(1000);   lcd.clear();   lcd.print("Calibrated!");   delay(1000);   lcd.clear(); 
+} 
+ 
+void loop() {   int xVal = analogRead(X_PIN);   int yVal = analogRead(Y_PIN);   int zVal = analogRead(Z_PIN);   int dx = xSample - xVal;   int dy = ySample - yVal;   int dz = zSample - zVal; 
+ 
+  bool isQuake = (     dx < MIN_CHANGE || dx > MAX_CHANGE ||     dy < MIN_CHANGE || dy > MAX_CHANGE ||     dz < MIN_CHANGE || dz > MAX_CHANGE 
+  ); 
+ 
+  if (isQuake && alertFlag == 0) {     startTime = millis();     alertFlag = 1; 
+  } 
+ 
+  if (alertFlag && millis() - startTime > BUZZ_DURATION) {     alertFlag = 0; 
+  } 
+ 
+  lcd.setCursor(0, 0);   if (alertFlag) { 
+    lcd.print("Earthquake ALERT"); 
+  } else {     lcd.print(" X   Y   Z "); 
+  } 
+ 
+  sprin (displayLine, "%4d %4d %4d", dx, dy, dz);   lcd.setCursor(0, 1);   lcd.print(displayLine); 
+ 
+  Serial.print("X: "); Serial.print(dx); 
+  Serial.print(" Y: "); Serial.print(dy); 
+  Serial.print(" Z: "); Serial.println(dz); 
+ 
+  digitalWrite(BUZZER, alertFlag);   digitalWrite(LED, alertFlag); 
+ 
+  delay(300); 
+} 
+ 
+ 
+5. Simula on , Demo & Github links: 
+This project was built and tested using Tinkercad Circuits, where: 
+•	The ADXL335 accelerometer was simulated using adjustable analog inputs to mimic ground vibra ons 
+•	The LED, buzzer, and LCD func oned according to the detected changes in accelera on 
+•	Vibra on thresholds were tested by varying X, Y, and Z values to trigger the "Earthquake ALERT" on the LCD and ac vate the buzzer and LED accordingly 
+Demo Video Link: 
+ 
+Tinkercad Circuit Link: 
+https://drive.google.com/file/d/14WmL9ZHZUhhRUiVVrZ1aB9fAd8CIzWiG/view?usp=sharing
+GITHUB LINK:
+https://github.com/Sricharan2406/mainLTproject/tree/main
+ 
+ 
+ 
+6)Results: 
+•	When vibra on is detected, the LED and buzzer turn ON, and the LCD displays "Earthquake 
+ALERT" 
+•	When no vibra on is detected, the LED and buzzer remain OFF, and the LCD shows real- me X, Y, Z axis values 
+•	The system mimics a real- me earthquake detec on and alert system, and it performed as expected during Tinkercad simula on 
+ 
+ 
+ 
+7) Conclusion 
+This project demonstrates the use of accelerometer sensors and microcontrollers for seismic ac vity detec on and aler ng. 
+It is highly applicable in: 
+•	Early warning systems for earthquake-prone regions 
+•	Home and building safety monitoring 
+•	Industrial equipment protec on 
+It can be extended in real-world environments by replacing the LED and buzzer with relays to trigger sirens, emergency ligh ng, or even automated shutdown systems for cri cal infrastructure. 
+ 
+ 
